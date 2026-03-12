@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Smart Traffic logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="16" y="16" width="224" height="224" rx="56" fill="url(#bg)"/>
+  <path d="M46 78c36-42 128-42 164 0" fill="none" stroke="url(#shine)" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- Road -->
+  <path d="M92 228L116 44h24l24 184" fill="none" stroke="#ffffff" stroke-opacity="0.95" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Center dashed line -->
+  <path d="M128 70v20M128 112v20M128 154v20M128 196v20" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Simple cars -->
+  <g opacity="0.95">
+    <rect x="78" y="120" width="44" height="26" rx="10" fill="#0b1220"/>
+    <rect x="136" y="158" width="44" height="26" rx="10" fill="#0b1220"/>
+    <circle cx="90" cy="150" r="7" fill="#0b1220"/>
+    <circle cx="110" cy="150" r="7" fill="#0b1220"/>
+    <circle cx="148" cy="188" r="7" fill="#0b1220"/>
+    <circle cx="168" cy="188" r="7" fill="#0b1220"/>
+  </g>
+</svg>
+

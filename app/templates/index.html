@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Smart Traffic – ML Route Finder</title>
+    <meta name="description" content="Traffic congestion prediction and smart route planning powered by ML." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body class="min-h-screen text-slate-900">
+    <div
+      class="fixed inset-0 -z-10 bg-gradient-to-br from-fuchsia-200 via-sky-100 to-amber-100"
+    ></div>
+    <div
+      class="fixed inset-0 -z-10 opacity-80 [mask-image:radial-gradient(white,transparent_70%)]"
+    >
+      <div
+        class="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-fuchsia-400/40 blur-3xl"
+      ></div>
+      <div
+        class="absolute top-24 -right-24 h-[28rem] w-[28rem] rounded-full bg-sky-400/40 blur-3xl"
+      ></div>
+      <div
+        class="absolute -bottom-24 left-1/3 h-96 w-96 rounded-full bg-amber-300/40 blur-3xl"
+      ></div>
+    </div>
+
+    <canvas
+      id="particles"
+      class="pointer-events-none fixed inset-0 z-0 opacity-60"
+      aria-hidden="true"
+    ></canvas>
+
+    <div class="relative z-10 mx-auto max-w-5xl px-4 py-10">
+      <header
+        class="glass-card flex flex-col gap-3 p-6"
+      >
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-center gap-3">
+          <img
+            src="/static/logo.svg"
+            alt="Smart Traffic"
+            class="h-10 w-10"
+            loading="eager"
+          />
+          <div>
+            <h1 class="text-2xl font-semibold tracking-tight">
+              Smart Traffic-Based Route Finder
+            </h1>
+            <p class="text-sm text-slate-600">
+              MobileNetV2 features + XGBoost congestion prediction
+            </p>
+          </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div
+              id="backend-pill"
+              class="status-pill status-pill-loading"
+              title="Checking backend statusâ€¦"
+            >
+              Checkingâ€¦
+            </div>
+            <a
+              href="/?force=1"
+              class="inline-flex items-center gap-2 rounded-xl border border-white/40 bg-white/50 px-3 py-2 text-xs font-semibold text-slate-800 shadow-sm hover:bg-white/70"
+              title="Show splash screen"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path d="M3 12a9 9 0 1 0 9-9" />
+                <path d="M3 3v6h6" />
+              </svg>
+              Splash
+            </a>
+          </div>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-3">
+          <div class="feature-pill">
+            <span class="feature-icon bg-emerald-500/15 text-emerald-700">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </span>
+            <div>
+              <div class="text-xs font-semibold text-slate-800">SaaS UI</div>
+              <div class="text-[11px] text-slate-600">Modern, responsive frontend</div>
+            </div>
+          </div>
+          <div class="feature-pill">
+            <span class="feature-icon bg-sky-500/15 text-sky-700">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 7h16M4 12h16M4 17h16"/>
+              </svg>
+            </span>
+            <div>
+              <div class="text-xs font-semibold text-slate-800">Predict</div>
+              <div class="text-[11px] text-slate-600">Upload image → congestion</div>
+            </div>
+          </div>
+          <div class="feature-pill">
+            <span class="feature-icon bg-fuchsia-500/15 text-fuchsia-700">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v6"/>
+                <path d="M12 16v6"/>
+                <path d="M4.93 4.93l4.24 4.24"/>
+                <path d="M14.83 14.83l4.24 4.24"/>
+                <path d="M2 12h6"/>
+                <path d="M16 12h6"/>
+                <path d="M4.93 19.07l4.24-4.24"/>
+                <path d="M14.83 9.17l4.24-4.24"/>
+              </svg>
+            </span>
+            <div>
+              <div class="text-xs font-semibold text-slate-800">Route AI</div>
+              <div class="text-[11px] text-slate-600">Least-congested path</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="mt-8">
+        <div
+          class="glass-card p-6"
+        >
+          <div class="flex flex-wrap gap-2">
+            <button
+              id="tab-predict"
+              class="tab-btn tab-btn-active-predict"
+              type="button"
+            >
+              <span class="tab-icon bg-white/20">
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2-2h6l2 2h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              </span>
+              Predict Image
+            </button>
+            <button
+              id="tab-route"
+              class="tab-btn tab-btn-inactive"
+              type="button"
+            >
+              <span class="tab-icon bg-white/20">
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 18a3 3 0 1 0 0-6H6a3 3 0 1 1 0-6h8a3 3 0 1 0 0-6"/>
+                  <path d="M14 18h4a3 3 0 0 0 0-6h-4"/>
+                </svg>
+              </span>
+              Route Finder
+            </button>
+          </div>
+
+          <section id="panel-predict" class="mt-6">
+            <div class="grid gap-4 lg:grid-cols-2">
+              <form
+                id="predict-form"
+                class="hover-lift rounded-2xl border border-white/40 bg-white/70 p-5 shadow-sm"
+              >
+                <label class="text-sm text-slate-700">Upload a road image</label>
+                <input
+                  id="predict-file"
+                  type="file"
+                  accept="image/*"
+                  class="mt-2 block w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:bg-slate-50"
+                />
+
+                <button
+                  id="predict-submit"
+                  class="btn glow-btn mt-4 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-sky-500 px-4 py-2 text-sm font-semibold text-white shadow-sm"
+                  type="submit"
+                >
+                  <span class="inline-flex items-center justify-center gap-2">
+                    <span class="btn-label">Predict</span>
+                    <span class="spinner hidden" aria-hidden="true"></span>
+                  </span>
+                </button>
+
+                <div id="predict-status" class="mt-3 text-sm text-slate-700"></div>
+
+                <div
+                  id="predict-result"
+                  class="mt-4 hidden rounded-xl border border-slate-200 bg-white p-4"
+                >
+                  <div class="text-slate-500 text-xs">Prediction</div>
+                  <div class="mt-1 flex items-center gap-2">
+                    <span
+                      class="chip chip-moderate text-sm"
+                      id="predict-label"
+                      >—</span
+                    >
+                  </div>
+                </div>
+              </form>
+
+              <div class="hover-lift rounded-2xl border border-white/40 bg-white/70 p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-800">Preview</div>
+                </div>
+
+                <div
+                  id="predict-dropzone"
+                  class="relative mt-3 cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white"
+                >
+                  <img
+                    id="predict-preview"
+                    class="hidden w-full object-contain"
+                    alt="Uploaded preview"
+                  />
+                  <div
+                    id="predict-preview-empty"
+                    class="grid place-items-center px-6 py-10 text-center"
+                  >
+                    <div class="max-w-xs">
+                      <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-900/5 text-slate-800">
+                        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                          <polyline points="17 8 12 3 7 8"/>
+                          <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                      </div>
+                      <div class="mt-3 text-sm font-semibold text-slate-800">
+                        Drop an image or browse
+                      </div>
+                      <div class="mt-1 text-xs text-slate-600">
+                        JPG / PNG works best.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          <section id="panel-route" class="mt-6 hidden">
+            <form
+              id="route-form"
+              class="hover-lift rounded-2xl border border-white/40 bg-white/70 p-5 shadow-sm"
+            >
+              <div class="grid gap-4 md:grid-cols-3">
+                <div>
+                  <label class="text-sm text-slate-700">Source</label>
+                  <select
+                    id="route-source"
+                    class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+                  ></select>
+                </div>
+                <div>
+                  <label class="text-sm text-slate-700">Destination</label>
+                  <select
+                    id="route-destination"
+                    class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+                  ></select>
+                </div>
+                <div class="flex items-end">
+                  <button
+                    id="route-submit"
+                    class="btn glow-btn w-full rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-semibold text-white shadow-sm"
+                    type="submit"
+                  >
+                    <span class="inline-flex items-center justify-center gap-2">
+                      <span class="btn-label">Find Best Route</span>
+                      <span class="spinner hidden" aria-hidden="true"></span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div id="route-status" class="mt-3 text-sm text-slate-700"></div>
+            </form>
+
+            <div id="route-output" class="mt-5"></div>
+          </section>
+        </div>
+
+        <footer class="mt-6 text-xs text-slate-600">
+          Backend: FastAPI · ML: MobileNetV2 feature extractor + XGBoost · UI:
+          Tailwind (CDN)
+        </footer>
+      </main>
+    </div>
+
+    <script src="/static/particles.js"></script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
